@@ -1,0 +1,19 @@
+---
+- hosts: yandex
+  become: true
+  gather_facts: no
+
+  tasks:
+  - name: "Install postfix"
+    ansible.builtin.apt:
+      name: "postfix"
+      state: "latest"
+      update_cache: true
+    tags: 'init postfix'
+
+  - name: "Delete postfix"
+    ansible.builtin.apt:
+      name: "postfix"
+      state: "absent"
+      update_cache: true
+    tags: 'drop postfix'
