@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  become: true
+  gather_facts: no
+
+  tasks:
+  - name: "Install nginx"
+    ansible.builtin.apt:
+      name: "nginx"
+      state: "latest"
+      update_cache: true
+    tags: 'Nginx'
+
+  - name: "unzip htmp template"
+    shell: "unzip /home/alexander/Загрузки/activitar.zip | sudo rm -r __MACOSX"
+    tags: 'Unzip'
+
+  - name: "Copy files to nginx"
+    shell: "cp -r /home/alexander/Загрузки/activar /var/www/"
+
+
