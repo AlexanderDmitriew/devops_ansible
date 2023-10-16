@@ -1,0 +1,23 @@
+---
+# tasks file for NPF
+- name: "Install nginx"
+  ansible.builtin.apt:
+    name: "nginx"
+    state: "latest"
+    update_cache: true
+  notify:
+    restart_nginx
+  tags: "Nginx"
+
+- name: "Install php"
+  ansible.builtin.apt:
+    name: "php-fpm"
+    state: "latest"
+    update_cache: true
+  tags: "PHP"
+
+- name: "index.php file"
+  ansible.builtin.copy:
+    src: "index.html"
+    dest: "/var/www/html"
+
