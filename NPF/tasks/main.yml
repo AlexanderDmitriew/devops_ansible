@@ -5,8 +5,6 @@
     name: "nginx"
     state: "latest"
     update_cache: true
-  notify:
-    restart_nginx
   tags: "Nginx"
 
 - name: "Install php"
@@ -20,4 +18,14 @@
   ansible.builtin.copy:
     src: "index.html"
     dest: "/var/www/html"
+  tags: "Index"
 
+- name: "Custom DocRoot"
+  ansible.builtin.file:
+    path: "/opt/nginx/ansible"
+    state: "directory"
+    owner: "www-data"
+    group: "www-data"
+  notify:
+    restart_nginx
+  tags: "DocRoot"
