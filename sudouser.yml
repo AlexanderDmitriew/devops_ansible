@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  become: true
+  gather_facts: no
+
+  tasks:
+  - name: "Create group"
+    ansible.builtin.group:
+      name: "superusers"
+      state: "present"
+    tags: 'Group'
+
+  - name: "Create user1"
+    ansible.builtin.user:
+      name: "user1"
+      group: "superusers"
+    tags: "User1"
+
+  - name: "Create user2"
+    ansible.builtin.user:
+      name: "user2"
+      group: "superusers"
+    tags: "User2"
+
+  - name: "Add sudo rules"
+    ansible.builtin.lineinfile:
+      dest: "/etc/sudoers"
+      insertafter: "%sudo*ALL*" 
+      line: "%superusers ALL=(ALL:ALL) ALL"
+      validate: /etc/sudoers
+
+  
