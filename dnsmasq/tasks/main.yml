@@ -1,0 +1,8 @@
+---
+# tasks file for dnsmasq
+- name: "Install dnsmasq"
+  ansible.builtin.apt:
+    name: "dnsmasq"
+    state: "latest"
+    update_cache: true
+
