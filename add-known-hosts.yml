@@ -1,0 +1,9 @@
+- name: "Get key from host {{ cfg_node }}"
+  command: "ssh-keyscan -t ecdsa {{ hostvars[ cfg_node ].ansible_host}} | grep -v ^#"
+  register: "ecdsa_key"
+
+- name: "Add key to known_hosts"
+  known_hosts:
+    name: "{{ hostvars[ cfg_node ].ansible_host }}"
+    path: "/home/head-user/.ssh/known_hosts"
+    key: "{{ ecdsa_key.stdout }}"

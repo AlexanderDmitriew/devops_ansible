@@ -1,0 +1,96 @@
+---
+- hosts: web
+  become: true
+  gather_facts: no
+
+  tasks:
+  - name: "Install ansible"
+    ansible.builtin.apt:
+      name: "ansible"
+      state: "latest"
+      update_cache: true
+    tags: "Ansible"
+
+  - name: "Create ansible user"
+    ansible.builtin.user:
+      name: "Ansible"
+    tags: "User_Ansible"
+
+  - name: "Generate SSH key"
+        community.crypto.openssh_keypair:
+          path: "/home/head-user/.ssh/id_ed25519"
+          type: "ed25519"
+          owner: "head-user"
+          group: "head-user"
+        register: "key_result"
+
+  - name: "Set public SSH key variable"
+    ansible.builtin.set_fact:
+      public_ssh_key: "{{ key_result.public_key }}"
+
+  - name: "Add host to known_hosts"
+    include_tasks:
+      file: "add-known-host.yml"
+      vars:
+        cfg_node: "{{ item }}"
+      loop:
+        - "158.160.108.198"
+        - "51.250.88.233"
+
+  - name: "Copy generated SSH public key to nodes"
+    hosts: app
+    tasks:
+      - name: "Copy SSH public key"
+        ansible.posix.authorized_key:
+          user: "node-user"
+          state: "present"
+          key: "{{ hostvars['head']['public_ssh_key'] }}"
+   
+  - name: "Install required system packages"
+    hosts: app
+    apt:
+      pkg:
+        - "apt-transport-https"
+        - "ca-certificates"
+        - "curl"
+        - "software-properties-common"
+        - "python3-pip"
+        - "virtualenv"
+        - "python3-setuptools"
+      state: "latest"
+      update_cache: true
+
+  - name: "Add Docker GPG apt Key"
+    hosts: app
+    apt_key:
+      url: "https://download.docker.com/linux/ubuntu/gpg"
+      state: "present"
+
+  - name: "Add Docker Repository"
+    hosts: app  
+    apt_repository:
+      repo: "deb https://download.docker.com/linux/ubuntu focal stable"
+      state: "present"
+
+  - name: "Update apt and install docker-ce"
+    hosts: app    
+    apt:
+      name: "docker-ce"
+      state: "latest"
+      update_cache: true
+
+  - name: "Install Docker Module for Python"
+    hosts: app  
+    pip:
+      name: "docker"
+
+  - name: "Install Postgres"
+    hosts: database
+    ansible.builtin.apt:
+      name: "postgresql"
+      state: "latest"
+      update_cache: true
+  
+
+
+
